@@ -33,5 +33,17 @@ class BindParameterNameSanitizerUnitTests {
 				.isEqualTo("___oldOptimisticLockingVersion");
 		assertThat(BindParameterNameSanitizer.sanitize("fooBar")).isEqualTo("fooBar");
 		assertThat(BindParameterNameSanitizer.sanitize("one.two.three")).isEqualTo("onetwothree");
+		assertThat(BindParameterNameSanitizer.sanitize("入职日期")).isEqualTo("入职日期");
+		assertThat(BindParameterNameSanitizer.sanitize("foo+bar")).isEqualTo("foobar");
+		assertThat(BindParameterNameSanitizer.sanitize("foo;bar")).isEqualTo("foobar");
+		assertThat(BindParameterNameSanitizer.sanitize("foo\nbar")).isEqualTo("foobar");
+		assertThat(BindParameterNameSanitizer.sanitize("foo\u200Bbar")).isEqualTo("foobar"); // ZERO WIDTH SPACE
+		assertThat(BindParameterNameSanitizer.sanitize("José")).isEqualTo("José");
+		assertThat(BindParameterNameSanitizer.sanitize("Jose\u0301")).isEqualTo("Jose");
+	}
+
+	@Test
+	void shouldErrorOnUnsanitizableNames() {
+		assertThatIllegalArgumentException().isThrownBy(() -> BindParameterNameSanitizer.sanitize("!!!"));
 	}
 }

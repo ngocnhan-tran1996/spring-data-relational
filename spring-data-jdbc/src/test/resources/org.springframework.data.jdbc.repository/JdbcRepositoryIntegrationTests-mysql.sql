@@ -10,7 +10,8 @@ CREATE TABLE DUMMY_ENTITY
     FLAG             BIT(1),
     REF              BIGINT,
     DIRECTION        VARCHAR(100),
-    BYTES            BINARY(8)
+    BYTES            BINARY(8),
+    入职日期          TIMESTAMP(3) DEFAULT NULL
 );
 
 CREATE TABLE ROOT

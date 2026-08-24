@@ -12,6 +12,7 @@
 	<!--<logger name="org.springframework.jdbc.core" level="trace" />-->
 	<logger name="org.springframework.data.repository.aot.generate" level="warn"/>
 	<!--<logger name="org.springframework.data.jdbc.mybatis.DummyEntityMapper" level="trace" />-->
+	<!-- logger name="org.springframework.data.repository.aot.generate.RepositoryContributor" level="trace" />-->
 
 	<root level="warn">
 		<appender-ref ref="console"/>

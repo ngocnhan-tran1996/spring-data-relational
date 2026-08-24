@@ -18,15 +18,18 @@ package org.springframework.data.jdbc.core.convert;
 
 import java.util.regex.Pattern;
 
+import org.springframework.util.Assert;
+
 /**
  * Sanitizes the name of bind parameters, so they don't contain any illegal characters.
  *
  * @author Jens Schauder
+ * @author Christoph Strobl
  * @since 3.0.2
  */
 abstract class BindParameterNameSanitizer {
 
-	private static final Pattern parameterPattern = Pattern.compile("\\W");
+	private static final Pattern parameterPattern = Pattern.compile("[^\\p{L}\\p{Nd}_]");
 
 	static String sanitize(String rawName) {
 

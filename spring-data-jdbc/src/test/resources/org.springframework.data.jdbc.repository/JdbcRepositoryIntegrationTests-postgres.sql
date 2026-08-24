@@ -17,7 +17,8 @@ CREATE TABLE dummy_entity
     FLAG             BOOLEAN,
     REF              BIGINT,
     DIRECTION        VARCHAR(100),
-    BYTES            BYTEA
+    BYTES            BYTEA,
+    入职日期          TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE ROOT

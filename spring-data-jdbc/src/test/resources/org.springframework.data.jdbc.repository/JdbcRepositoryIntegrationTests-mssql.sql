@@ -17,7 +17,8 @@ CREATE TABLE dummy_entity
     FLAG             BIT,
     REF              BIGINT,
     DIRECTION        VARCHAR(100),
-    BYTES            VARBINARY(8)
+    BYTES            VARBINARY(8),
+    入职日期          DATETIMEOFFSET
 );
 
 CREATE TABLE ROOT

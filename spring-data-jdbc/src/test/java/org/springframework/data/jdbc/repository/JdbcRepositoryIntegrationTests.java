@@ -23,6 +23,7 @@ import static org.assertj.core.api.SoftAssertions.*;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -706,6 +707,40 @@ public class JdbcRepositoryIntegrationTests {
 
 		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
 	}
+
+	@Test // GH-???
+	public void queryUnicodeColumn() {
+
+		Instant now = createDummyBeforeAndAfterNow();
+		OffsetDateTime timeArgument = OffsetDateTime.ofInstant(now, ZoneOffset.ofHours(2));
+
+		List<DummyEntity> entities = repository.findByHireDateAfter(timeArgument, Sort.unsorted());
+
+		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
+	}
+
+	@Test // GH-???
+	public void queryUnicodeColumnSort() {
+
+		Instant now = createDummyBeforeAndAfterNow();
+		OffsetDateTime timeArgument = OffsetDateTime.ofInstant(now, ZoneOffset.ofHours(2));
+
+		List<DummyEntity> entities = repository.findByHireDateAfter(timeArgument, Sort.by("hireDate"));
+
+		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
+	}
+
+	@Test // GH-???
+	public void queryUnicodeColumnUnsafeSort() {
+
+		Instant now = createDummyBeforeAndAfterNow();
+		OffsetDateTime timeArgument = OffsetDateTime.ofInstant(now, ZoneOffset.ofHours(2));
+
+		List<DummyEntity> entities = repository.findByHireDateAfter(timeArgument, Sort.by("入职日期"));
+
+		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
+	}
+
 
 	@Test // GH-971
 	public void stringQueryProjectionShouldReturnProjectedEntities() {
@@ -1598,6 +1633,7 @@ public class JdbcRepositoryIntegrationTests {
 		OffsetDateTime earlierPlus3 = earlier.atOffset(ZoneOffset.ofHours(3));
 		first.setPointInTime(earlier);
 		first.offsetDateTime = earlierPlus3;
+		first.hireDate = earlierPlus3;
 
 		first.setName("first");
 
@@ -1606,6 +1642,7 @@ public class JdbcRepositoryIntegrationTests {
 		OffsetDateTime laterPlus3 = later.atOffset(ZoneOffset.ofHours(3));
 		second.setPointInTime(later);
 		second.offsetDateTime = laterPlus3;
+		second.hireDate = laterPlus3;
 		second.setName("second");
 
 		repository.saveAll(asList(first, second));
@@ -1685,6 +1722,8 @@ public class JdbcRepositoryIntegrationTests {
 
 		@Query("SELECT * FROM DUMMY_ENTITY WHERE OFFSET_DATE_TIME > :threshhold")
 		List<DummyEntity> findByOffsetDateTime(@Param("threshhold") OffsetDateTime threshhold);
+
+		List<DummyEntity> findByHireDateAfter(OffsetDateTime date, Sort sort);
 
 		@Modifying
 		@Query("UPDATE dummy_entity SET point_in_time = :start - interval '30 minutes' WHERE id_prop = :id")
@@ -2132,6 +2171,7 @@ public class JdbcRepositoryIntegrationTests {
 		AggregateReference<DummyEntity, Long> ref;
 		Direction direction;
 		byte[] bytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+		@Column("入职日期") private OffsetDateTime hireDate;
 
 		public DummyEntity(String name) {
 			this.name = name;
@@ -2195,6 +2235,14 @@ public class JdbcRepositoryIntegrationTests {
 			this.direction = direction;
 		}
 
+		public OffsetDateTime getHireDate() {
+			return hireDate;
+		}
+
+		public void setHireDate(OffsetDateTime hireDate) {
+			this.hireDate = hireDate;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o)
@@ -2204,12 +2252,12 @@ public class JdbcRepositoryIntegrationTests {
 			DummyEntity that = (DummyEntity) o;
 			return flag == that.flag && Objects.equals(name, that.name) && Objects.equals(pointInTime, that.pointInTime)
 					&& Objects.equals(offsetDateTime, that.offsetDateTime) && Objects.equals(idProp, that.idProp)
-					&& Objects.equals(ref, that.ref) && direction == that.direction;
+					&& Objects.equals(ref, that.ref) && direction == that.direction && Objects.equals(hireDate, that.hireDate);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(name, pointInTime, offsetDateTime, idProp, flag, ref, direction);
+			return Objects.hash(name, pointInTime, offsetDateTime, idProp, flag, ref, direction, hireDate);
 		}
 
 		public byte[] getBytes() {

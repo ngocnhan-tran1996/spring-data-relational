@@ -25,8 +25,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Sort;
@@ -501,23 +504,26 @@ class QueryMapperUnitTests {
 				.containsExactly("unknownField DESC");
 	}
 
-	@Test // GH-1507
-	public void shouldMapSortWithAllowedSpecialCharacters() {
+	@ParameterizedTest // GH-1507
+	@ValueSource(strings = {"x._x", "员工编号", "员工.姓名", "Αναγνωριστικό_εργαζομένου", "Співробітники", "Çalışanlar", "José"})
+	public void shouldMapSortWithAllowedSpecialCharacters(String value) {
 
-		Sort sort = Sort.by(desc("x(._)x"));
+		Sort sort = Sort.by(desc(value));
 
 		List<OrderByField> fields = mapper.getMappedSort(Table.create("tbl"), sort,
 				mapper.getMappingContext().getRequiredPersistentEntity(Person.class));
 
 		assertThat(fields) //
 				.extracting(Objects::toString) //
-				.containsExactly("tbl.x(._)x DESC");
+				.containsExactly("tbl.%s DESC".formatted(value));
 	}
 
-	@Test // GH-1507
-	public void shouldNotMapSortWithIllegalExpression() {
+	@ParameterizedTest // GH-1507
+	@ValueSource(strings = { "unknown Field", "foo;bar", "foo'bar", "foo«bar", "foo¡bar", "--", "(x)", "foo\u00ABbar",
+			"foo\u201Cbar"})
+	public void shouldNotMapSortWithIllegalExpression(String value) {
 
-		Sort sort = Sort.by(desc("unknown Field"));
+		Sort sort = Sort.by(desc(value));
 
 		assertThatThrownBy(() -> mapper.getMappedSort(Table.create("tbl"), sort,
 				mapper.getMappingContext().getRequiredPersistentEntity(Person.class)))

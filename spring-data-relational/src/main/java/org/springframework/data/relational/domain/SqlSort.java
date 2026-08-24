@@ -36,7 +36,8 @@ import org.springframework.util.Assert;
  */
 public class SqlSort extends Sort {
 
-	private static final Predicate<String> predicate = Pattern.compile("^[0-9a-zA-Z_\\.\\(\\)]*$").asPredicate();
+	private static final Predicate<String> PREDICATE = Pattern.compile("[^\\p{L}\\p{N}._]", Pattern.UNICODE_CHARACTER_CLASS)
+			.asPredicate();
 
 	private static final long serialVersionUID = 1L;
 
@@ -81,9 +82,9 @@ public class SqlSort extends Sort {
 			return;
 		}
 
-		if (!predicate.test(property)) {
+		if (PREDICATE.test(property)) {
 			throw new IllegalArgumentException(
-					"order fields that are not marked as unsafe must only consist of digits, letter, '.', '_', and ''. If you want to sort by arbitrary expressions please use RelationalSort.unsafe. Note that such expressions become part of SQL statements and therefore need to be sanitized to prevent SQL injection attacks.");
+					"order fields that are not marked as unsafe must only consist of digits, letters, '.' and '_'. If you want to sort by arbitrary expressions please use RelationalSort.unsafe. Note that such expressions become part of SQL statements and therefore need to be sanitized to prevent SQL injection attacks.");
 		}
 	}
 

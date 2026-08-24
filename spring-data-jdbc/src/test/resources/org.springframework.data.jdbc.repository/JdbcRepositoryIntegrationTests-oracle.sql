@@ -17,7 +17,8 @@ CREATE TABLE DUMMY_ENTITY
     FLAG             NUMBER(1,0),
     REF              NUMBER,
     DIRECTION        VARCHAR2(100),
-    BYTES            RAW(8)
+    BYTES            RAW(8),
+    入职日期          TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE ROOT
