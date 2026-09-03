@@ -471,7 +471,8 @@ public class QueryMapperUnitTests {
 	}
 
 	@ParameterizedTest // GH-1507
-	@ValueSource(strings = {"x._x", "员工编号", "员工.姓名", "Αναγνωριστικό_εργαζομένου", "Співробітники", "Çalışanlar", "José"})
+	@ValueSource(strings = { "x._x", "员工编号", "员工.姓名", "Αναγνωριστικό_εργαζομένου", "Співробітники", "Çalışanlar", "José",
+			"कर्मचारी", "வேலை", "วันที่" })
 	void shouldMapSortWithAllowedSpecialCharacters(String value) {
 
 		Sort sort = Sort.by(desc(value));

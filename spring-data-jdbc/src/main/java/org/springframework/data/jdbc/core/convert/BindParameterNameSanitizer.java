@@ -16,8 +16,7 @@
 
 package org.springframework.data.jdbc.core.convert;
 
-import java.util.regex.Pattern;
-
+import org.springframework.data.relational.core.sql.SqlIdentifiers;
 import org.springframework.util.Assert;
 
 /**
@@ -29,17 +28,13 @@ import org.springframework.util.Assert;
  */
 abstract class BindParameterNameSanitizer {
 
-	private static final Pattern parameterPattern = Pattern.compile("[^\\p{L}\\p{Nd}_]");
-
 	static String sanitize(String rawName) {
 
-		for (int i = 0; i < rawName.length(); i++) {
-			char c = rawName.charAt(i);
-			if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && c != '_') {
-				return parameterPattern.matcher(rawName).replaceAll("");
-			}
-		}
+		String sanitized = SqlIdentifiers.strip(rawName);
 
-		return rawName;
+		Assert.hasText(sanitized,
+				() -> "Bind parameter for column %s resulted in an empty identifier".formatted(rawName));
+
+		return sanitized;
 	}
 }

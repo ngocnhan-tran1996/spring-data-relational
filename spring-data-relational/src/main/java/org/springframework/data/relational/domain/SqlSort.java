@@ -19,11 +19,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.relational.core.sql.SqlIdentifiers;
 import org.springframework.util.Assert;
 
 /**
@@ -35,9 +34,6 @@ import org.springframework.util.Assert;
  * @since 3.1
  */
 public class SqlSort extends Sort {
-
-	private static final Predicate<String> PREDICATE = Pattern.compile("[^\\p{L}\\p{N}._]", Pattern.UNICODE_CHARACTER_CLASS)
-			.asPredicate();
 
 	private static final long serialVersionUID = 1L;
 
@@ -82,9 +78,9 @@ public class SqlSort extends Sort {
 			return;
 		}
 
-		if (PREDICATE.test(property)) {
+		if (!SqlIdentifiers.isValidPath(property)) {
 			throw new IllegalArgumentException(
-					"order fields that are not marked as unsafe must only consist of digits, letters, '.' and '_'. If you want to sort by arbitrary expressions please use RelationalSort.unsafe. Note that such expressions become part of SQL statements and therefore need to be sanitized to prevent SQL injection attacks.");
+					"order fields that are not marked as unsafe must only consist of letters, digits, combining marks, '.' and '_'. If you want to sort by arbitrary expressions please use RelationalSort.unsafe. Note that such expressions become part of SQL statements and therefore need to be sanitized to prevent SQL injection attacks.");
 		}
 	}
 

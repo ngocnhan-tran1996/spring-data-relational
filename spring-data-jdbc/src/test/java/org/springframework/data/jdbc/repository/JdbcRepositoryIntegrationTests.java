@@ -708,7 +708,7 @@ public class JdbcRepositoryIntegrationTests {
 		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
 	}
 
-	@Test // GH-???
+	@Test // GH-2378
 	public void queryUnicodeColumn() {
 
 		Instant now = createDummyBeforeAndAfterNow();
@@ -719,7 +719,7 @@ public class JdbcRepositoryIntegrationTests {
 		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
 	}
 
-	@Test // GH-???
+	@Test // GH-2378
 	public void queryUnicodeColumnSort() {
 
 		Instant now = createDummyBeforeAndAfterNow();
@@ -730,7 +730,7 @@ public class JdbcRepositoryIntegrationTests {
 		assertThat(entities).extracting(DummyEntity::getName).containsExactly("second");
 	}
 
-	@Test // GH-???
+	@Test // GH-2378
 	public void queryUnicodeColumnUnsafeSort() {
 
 		Instant now = createDummyBeforeAndAfterNow();
@@ -2171,7 +2171,7 @@ public class JdbcRepositoryIntegrationTests {
 		AggregateReference<DummyEntity, Long> ref;
 		Direction direction;
 		byte[] bytes = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-		@Column("入职日期") private OffsetDateTime hireDate;
+		@Column("入职日期") OffsetDateTime hireDate;
 
 		public DummyEntity(String name) {
 			this.name = name;

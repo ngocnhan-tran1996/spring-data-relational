@@ -39,11 +39,27 @@ class BindParameterNameSanitizerUnitTests {
 		assertThat(BindParameterNameSanitizer.sanitize("foo\nbar")).isEqualTo("foobar");
 		assertThat(BindParameterNameSanitizer.sanitize("foo\u200Bbar")).isEqualTo("foobar"); // ZERO WIDTH SPACE
 		assertThat(BindParameterNameSanitizer.sanitize("José")).isEqualTo("José");
-		assertThat(BindParameterNameSanitizer.sanitize("Jose\u0301")).isEqualTo("Jose");
+		assertThat(BindParameterNameSanitizer.sanitize("Jose\u0301")).isEqualTo("Jose\u0301");
+	}
+
+	@Test // GH-2378
+	void shouldKeepCombiningMarks() {
+
+		// scripts in which combining marks are part of the regular orthography
+		String devanagari = "\u0915\u0930\u094d\u092e\u091a\u093e\u0930\u0940";
+		String tamil = "\u0bb5\u0bc7\u0bb2\u0bc8";
+		String thai = "\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48";
+
+		assertThat(BindParameterNameSanitizer.sanitize(devanagari)).isEqualTo(devanagari);
+		assertThat(BindParameterNameSanitizer.sanitize(tamil)).isEqualTo(tamil);
+		assertThat(BindParameterNameSanitizer.sanitize(thai)).isEqualTo(thai);
 	}
 
 	@Test
 	void shouldErrorOnUnsanitizableNames() {
+
 		assertThatIllegalArgumentException().isThrownBy(() -> BindParameterNameSanitizer.sanitize("!!!"));
+		assertThatIllegalArgumentException().isThrownBy(() -> BindParameterNameSanitizer.sanitize(""));
+		assertThatIllegalArgumentException().isThrownBy(() -> BindParameterNameSanitizer.sanitize(" "));
 	}
 }

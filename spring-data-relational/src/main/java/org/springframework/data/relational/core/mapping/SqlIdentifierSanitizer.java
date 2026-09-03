@@ -1,7 +1,6 @@
 package org.springframework.data.relational.core.mapping;
 
-import java.util.regex.Pattern;
-
+import org.springframework.data.relational.core.sql.SqlIdentifiers;
 import org.springframework.util.Assert;
 
 /**
@@ -16,19 +15,23 @@ import org.springframework.util.Assert;
 public interface SqlIdentifierSanitizer {
 
 	/**
-	 * A sanitizer to allow words only. Non-words are removed silently.
+	 * A sanitizer to allow letters, combining marks, decimal digits and {@code _} only. All other characters are removed
+	 * silently. Rejects names that don't contain a single legal character, since those would render as empty
+	 * identifiers.
 	 *
 	 * @return
 	 */
 	static SqlIdentifierSanitizer words() {
 
-		Pattern pattern = Pattern.compile("[^\\w_]");
-
 		return name -> {
 
 			Assert.notNull(name, "Input to sanitize must not be null");
 
-			return pattern.matcher(name).replaceAll("");
+			String sanitized = SqlIdentifiers.strip(name);
+
+			Assert.hasText(sanitized, () -> "Sanitizing %s resulted in an empty identifier".formatted(name));
+
+			return sanitized;
 		};
 	}
 

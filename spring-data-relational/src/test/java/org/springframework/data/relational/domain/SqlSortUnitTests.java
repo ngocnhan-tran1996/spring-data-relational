@@ -19,6 +19,8 @@ package org.springframework.data.relational.domain;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.Sort;
 
 /**
@@ -82,5 +84,36 @@ class SqlSortUnitTests {
 				SqlSort.SqlOrder.desc("property").ignoreCase().withUnsafe().with(Sort.NullHandling.NULLS_LAST))
 						.isEqualTo(SqlSort.SqlOrder.by("property").with(Sort.NullHandling.NULLS_LAST).withUnsafe()
 								.ignoreCase().with(Sort.Direction.DESC));
+	}
+
+	@ParameterizedTest // GH-2378
+	@ValueSource(strings = { "firstName", "_firstName", "person.firstName", "person._first_name_2", "x._x", "员工编号",
+			"员工.姓名", "Αναγνωριστικό_εργαζομένου", "Співробітники", "Çalışanlar", "José", "कर्मचारी", "வேலை", "วันที่" })
+	void validateAcceptsIdentifiers(String property) {
+		assertThatNoException().isThrownBy(() -> SqlSort.validate(Sort.Order.by(property)));
+	}
+
+	@ParameterizedTest // GH-2378
+	@ValueSource(strings = { "first name", "first;name", "first'name", "first\"name", "first-name", "--",
+			"lower(name)", "(x)", "count(*)", "1=1", "name/**/", "name#", "name«bar", "name“bar", "½", "Ⅳ",
+			"①" })
+	void validateRejectsEverythingElse(String property) {
+
+		assertThatIllegalArgumentException() //
+				.isThrownBy(() -> SqlSort.validate(Sort.Order.by(property))) //
+				.withMessageContaining("must only consist of");
+	}
+
+	@ParameterizedTest // GH-2378
+	@ValueSource(strings = { "name\n", "name\r", "name\r\n", "name\u0085", "name\u2028", "name\u2029" })
+	void validateRejectsTrailingLineTerminators(String property) {
+
+		assertThatIllegalArgumentException().isThrownBy(() -> SqlSort.validate(Sort.Order.by(property)));
+	}
+
+	@ParameterizedTest // GH-2378
+	@ValueSource(strings = { "lower(name)", "sum(foobar)", "name; DROP TABLE person" })
+	void validateAcceptsAnythingMarkedUnsafe(String property) {
+		assertThatNoException().isThrownBy(() -> SqlSort.validate(SqlSort.SqlOrder.by(property).withUnsafe()));
 	}
 }

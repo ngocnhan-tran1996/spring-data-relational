@@ -12,10 +12,10 @@ import org.springframework.util.Assert;
 
 /**
  * Provide support for processing SpEL expressions in @Table and @Column annotations, or anywhere we want to use SpEL
- * expressions and sanitize the result of the evaluated SpEL expression. The default sanitization allows for digits,
- * alphabetic characters and _ characters and strips out any other characters. Custom sanitization (if desired) can be
- * achieved by creating a class that implements the {@link SqlIdentifierSanitizer} interface and then invoking the
- * {@link #setSanitizer(SqlIdentifierSanitizer)} method.
+ * expressions and sanitize the result of the evaluated SpEL expression. The default sanitization allows for letters,
+ * combining marks, decimal digits and _ characters and strips out any other characters. Custom sanitization (if
+ * desired) can be achieved by creating a class that implements the {@link SqlIdentifierSanitizer} interface and then
+ * invoking the {@link #setSanitizer(SqlIdentifierSanitizer)} method.
  *
  * @author Kurt Niemi
  * @author Sergey Korotaev
